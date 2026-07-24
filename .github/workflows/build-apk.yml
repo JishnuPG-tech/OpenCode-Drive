@@ -63,7 +63,7 @@ jobs:
         run: |
           TAG="${GITHUB_REF#refs/tags/}"
           gh release create "$TAG" \
-            android/app/build/outputs/apk/debug/app-release.apk \
+            android/app/build/outputs/apk/debug/app-debug.apk \
             --title "Release $TAG" \
             --generate-notes
         env:
