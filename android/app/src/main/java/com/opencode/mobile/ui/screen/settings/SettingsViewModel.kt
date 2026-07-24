@@ -26,14 +26,15 @@ class SettingsViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
-    private val _serverUrl = MutableStateFlow("")
+    private val _serverUrl = MutableStateFlow("http://localhost:3000")
     val serverUrl: StateFlow<String> = _serverUrl.asStateFlow()
 
     private val _isConnected = MutableStateFlow(false)
     val isConnected: StateFlow<Boolean> = _isConnected.asStateFlow()
 
     init {
-        loadConfig()
+        // Don't auto-test connection
+        _isConnected.value = false
     }
 
     fun loadConfig() {
@@ -84,7 +85,7 @@ class SettingsViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 _isConnected.value = false
-                _error.value = e.message
+                _error.value = "Cannot connect to server"
             } finally {
                 _isLoading.value = false
             }

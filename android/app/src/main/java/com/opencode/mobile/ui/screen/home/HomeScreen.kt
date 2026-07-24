@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,6 +31,7 @@ fun HomeScreen(
     val sessions by viewModel.sessions.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
+    val isConnected by viewModel.isConnected.collectAsState()
     var showCreateDialog by remember { mutableStateOf(false) }
     var newSessionTitle by remember { mutableStateOf("") }
 
@@ -40,7 +42,14 @@ fun HomeScreen(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                ),
+                actions = {
+                    if (!isConnected) {
+                        IconButton(onClick = { viewModel.loadSessions() }) {
+                            Icon(Icons.Default.Refresh, "Connect")
+                        }
+                    }
+                }
             )
         },
         floatingActionButton = {
@@ -60,19 +69,36 @@ fun HomeScreen(
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center)
                 )
-            } else if (error != null) {
+            } else if (!isConnected && error != null) {
+                // Show connection screen
                 Column(
-                    modifier = Modifier.align(Alignment.Center),
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = error ?: "Unknown error",
-                        color = MaterialTheme.colorScheme.error
+                        text = "Welcome to OpenCode",
+                        style = MaterialTheme.typography.headlineMedium
                     )
                     Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Connect to your OpenCode server to get started",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = { viewModel.loadSessions() }) {
-                        Text("Retry")
+                        Icon(Icons.Default.Refresh, "Connect")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Connect to Server")
                     }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Or continue with demo sessions",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             } else {
                 LazyColumn(

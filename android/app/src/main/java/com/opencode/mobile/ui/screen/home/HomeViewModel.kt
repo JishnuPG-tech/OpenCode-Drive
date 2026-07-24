@@ -25,8 +25,20 @@ class HomeViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    private val _isConnected = MutableStateFlow(false)
+    val isConnected: StateFlow<Boolean> = _isConnected.asStateFlow()
+
     init {
-        loadSessions()
+        // Don't auto-load - wait for user to connect
+        _sessions.value = getMockSessions()
+    }
+
+    private fun getMockSessions(): List<Session> {
+        return listOf(
+            Session(id = "1", title = "Welcome Session", status = com.opencode.mobile.data.model.SessionStatus.IDLE, updatedAt = "Just now"),
+            Session(id = "2", title = "Demo Project", status = com.opencode.mobile.data.model.SessionStatus.IDLE, updatedAt = "2 hours ago"),
+            Session(id = "3", title = "Code Review", status = com.opencode.mobile.data.model.SessionStatus.IDLE, updatedAt = "Yesterday")
+        )
     }
 
     fun loadSessions() {
@@ -34,17 +46,23 @@ class HomeViewModel @Inject constructor(
             _isLoading.value = true
             _error.value = null
             
-            sessionRepository.getSessions().collect { result ->
-                result.fold(
-                    onSuccess = { sessions ->
-                        _sessions.value = sessions
-                        _isLoading.value = false
-                    },
-                    onFailure = { e ->
-                        _error.value = e.message
-                        _isLoading.value = false
-                    }
-                )
+            try {
+                sessionRepository.getSessions().collect { result ->
+                    result.fold(
+                        onSuccess = { sessions ->
+                            _sessions.value = sessions
+                            _isConnected.value = true
+                            _isLoading.value = false
+                        },
+                        onFailure = { e ->
+                            _error.value = e.message
+                            _isLoading.value = false
+                        }
+                    )
+                }
+            } catch (e: Exception) {
+                _error.value = "Server not available"
+                _isLoading.value = false
             }
         }
     }

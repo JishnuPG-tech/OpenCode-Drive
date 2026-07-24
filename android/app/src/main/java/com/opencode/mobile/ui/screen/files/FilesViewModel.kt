@@ -3,6 +3,7 @@ package com.opencode.mobile.ui.screen.files
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.opencode.mobile.data.model.FileItem
+import com.opencode.mobile.data.model.FileType
 import com.opencode.mobile.data.repository.FileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,7 +33,18 @@ class FilesViewModel @Inject constructor(
     val fileContent: StateFlow<String?> = _fileContent.asStateFlow()
 
     init {
-        loadFiles()
+        // Start with mock files
+        _files.value = getMockFiles()
+    }
+
+    private fun getMockFiles(): List<FileItem> {
+        return listOf(
+            FileItem(name = "src", path = "src", type = FileType.DIRECTORY),
+            FileItem(name = "app", path = "app", type = FileType.DIRECTORY),
+            FileItem(name = "README.md", path = "README.md", type = FileType.FILE, size = 1024),
+            FileItem(name = "package.json", path = "package.json", type = FileType.FILE, size = 512),
+            FileItem(name = "index.ts", path = "index.ts", type = FileType.FILE, size = 2048)
+        )
     }
 
     fun loadFiles(path: String = "") {
@@ -42,34 +54,43 @@ class FilesViewModel @Inject constructor(
             _currentPath.value = path
             _fileContent.value = null
             
-            fileRepository.listFiles(path).collect { result ->
-                result.fold(
-                    onSuccess = { files ->
-                        _files.value = files
-                        _isLoading.value = false
-                    },
-                    onFailure = { e ->
-                        _error.value = e.message
-                        _isLoading.value = false
-                    }
-                )
+            try {
+                fileRepository.listFiles(path).collect { result ->
+                    result.fold(
+                        onSuccess = { files ->
+                            _files.value = files
+                            _isLoading.value = false
+                        },
+                        onFailure = { e ->
+                            _error.value = e.message
+                            _isLoading.value = false
+                        }
+                    )
+                }
+            } catch (e: Exception) {
+                _error.value = "Server not available"
+                _isLoading.value = false
             }
         }
     }
 
     fun openFile(file: FileItem) {
-        if (file.type == com.opencode.mobile.data.model.FileType.DIRECTORY) {
+        if (file.type == FileType.DIRECTORY) {
             loadFiles(file.path)
         } else {
             viewModelScope.launch {
-                fileRepository.readFile(file.path).fold(
-                    onSuccess = { content ->
-                        _fileContent.value = content
-                    },
-                    onFailure = { e ->
-                        _error.value = e.message
-                    }
-                )
+                try {
+                    fileRepository.readFile(file.path).fold(
+                        onSuccess = { content ->
+                            _fileContent.value = content
+                        },
+                        onFailure = { e ->
+                            _error.value = e.message
+                        }
+                    )
+                } catch (e: Exception) {
+                    _error.value = "Server not available"
+                }
             }
         }
     }
