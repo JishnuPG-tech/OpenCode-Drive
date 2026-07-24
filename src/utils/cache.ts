@@ -3,13 +3,15 @@
  * In-memory cache with TTL support
  */
 
+import type { Session, Model, Provider, OpenCodeConfig } from '../network/types';
+
 interface CacheEntry<T> {
   data: T;
   timestamp: number;
   ttl: number;
 }
 
-class CacheManager {
+export class CacheManager {
   private cache: Map<string, CacheEntry<unknown>> = new Map();
   private maxSize: number;
 
@@ -124,6 +126,3 @@ export function getCachedConfig() {
 export function setCachedConfig(config: OpenCodeConfig) {
   apiCache.set(CACHE_KEYS.CONFIG, config, 60000); // 1 minute
 }
-
-// Import types
-import type { Session, Model, Provider, OpenCodeConfig } from '../network/types';

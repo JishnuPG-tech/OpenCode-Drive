@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Server, Shield, ArrowRight } from 'lucide-react-native';
+import { ArrowRight } from 'lucide-react-native';
 import { getThemeColors } from '../theme';
 import { storage } from '../storage/mmkv';
 import { apiClient } from '../network/api-client';
@@ -70,7 +70,7 @@ export default function OnboardingScreen() {
       } else {
         setError('Server is not healthy');
       }
-    } catch (err) {
+    } catch {
       setError('Failed to connect. Check the URL and try again.');
     } finally {
       setIsConnecting(false);

@@ -5,7 +5,7 @@
 
 import { storage } from '../storage/mmkv';
 import { API_ENDPOINTS } from './endpoints';
-import type { ServerEvent, ConnectionState, ServerProfile } from './types';
+import type { ServerEvent, ConnectionState } from './types';
 
 type ConnectionStateListener = (state: ConnectionState) => void;
 type EventListener = (event: ServerEvent) => void;

@@ -7,7 +7,7 @@ import { useEffect, useCallback, useRef } from 'react';
 import { getSSEClient } from '../network/sse-client';
 import { useAppStore } from '../store';
 import { storage } from '../storage/mmkv';
-import type { ServerEvent, ConnectionState } from '../network/types';
+import type { ServerEvent, ConnectionState, MessagePartUpdatedEvent } from '../network/types';
 
 export function useConnection() {
   const {
@@ -21,8 +21,6 @@ export function useConnection() {
     removeSession,
     addPendingPermission,
     addPendingQuestion,
-    setStreamingMessageId,
-    setStreamingContent,
     appendStreamingContent,
   } = useAppStore();
 
@@ -51,18 +49,23 @@ export function useConnection() {
           break;
 
         case 'message.updated':
-          updateMessage(event.properties.sessionID, event.properties.id, event.properties);
+          updateMessage(
+            event.properties.sessionID as string,
+            event.properties.id,
+            event.properties
+          );
           break;
 
-        case 'message.part.updated':
-          const { messageID, part, sessionID } = event.properties;
-          updateMessagePart(sessionID, messageID, part);
+        case 'message.part.updated': {
+            const { messageID, part, sessionID } = event.properties as MessagePartUpdatedEvent['properties'];
+            updateMessagePart(sessionID, messageID, part);
 
-          // Update streaming content
-          if (part.type === 'text') {
-            appendStreamingContent(part.text);
+            // Update streaming content
+            if (part.type === 'text') {
+              appendStreamingContent(part.text);
+            }
+            break;
           }
-          break;
 
         case 'message.part.deleted':
           // Handle part deletion if needed
@@ -127,13 +130,13 @@ export function useConnection() {
 
   // Connect to SSE
   const connect = useCallback(
-    (sessionId?: string) => {
+    (sessionId?: string | null) => {
       const profile = storage.getActiveProfile();
       if (!profile) return;
 
       sseClient.current.onEvent(handleEvent);
       sseClient.current.onStateChange(handleStateChange);
-      sseClient.current.connect(sessionId, profile.url);
+      sseClient.current.connect(sessionId ?? undefined, profile.url);
     },
     [handleEvent, handleStateChange]
   );
@@ -153,8 +156,9 @@ export function useConnection() {
 
   // Cleanup on unmount
   useEffect(() => {
+    const client = sseClient.current;
     return () => {
-      sseClient.current.disconnect();
+      client.disconnect();
     };
   }, []);
 
@@ -162,7 +166,7 @@ export function useConnection() {
   useEffect(() => {
     const profile = storage.getActiveProfile();
     if (profile) {
-      connect(activeSessionId || undefined);
+      connect(activeSessionId || null);
     }
   }, [connect, activeSessionId]);
 

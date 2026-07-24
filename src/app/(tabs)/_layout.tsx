@@ -4,13 +4,11 @@
  */
 
 import { Tabs } from 'expo-router';
-import { useColorScheme } from 'react-native';
 import { MessageSquare, Folder, Terminal, Search, Settings } from 'lucide-react-native';
-import { getThemeColors } from '../theme';
-import { storage } from '../storage/mmkv';
+import { getThemeColors } from '../../theme';
+import { storage } from '../../storage/mmkv';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
   const themeName = storage.getTheme() as 'dark' | 'light' | 'system';
   const theme = getThemeColors(themeName);
 

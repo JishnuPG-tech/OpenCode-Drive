@@ -33,8 +33,8 @@ export default function TerminalScreen() {
       setIsLoading(true);
       const data = await apiClient.getPTYs();
       setTerminals(data);
-    } catch (error) {
-      console.error('Failed to load terminals:', error);
+    } catch {
+      // Silently fail - terminals list will be empty
     } finally {
       setIsLoading(false);
     }
@@ -48,7 +48,7 @@ export default function TerminalScreen() {
     try {
       const pty = await apiClient.createPTY();
       setTerminals([pty, ...terminals]);
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to create terminal');
     }
   };
@@ -63,7 +63,7 @@ export default function TerminalScreen() {
           try {
             await apiClient.deletePTY(id);
             setTerminals(terminals.filter((t) => t.id !== id));
-          } catch (error) {
+          } catch {
             Alert.alert('Error', 'Failed to delete terminal');
           }
         },

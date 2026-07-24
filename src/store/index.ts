@@ -12,7 +12,6 @@ import type {
   ServerProfile,
   PermissionRequest,
   QuestionRequest,
-  Todo,
 } from '../network/types';
 
 interface AppState {
@@ -101,7 +100,7 @@ const initialState = {
   isSettingsOpen: false,
 };
 
-export const useAppStore = create<AppState>((set, get) => ({
+export const useAppStore = create<AppState>((set) => ({
   ...initialState,
 
   // ── Connection ──

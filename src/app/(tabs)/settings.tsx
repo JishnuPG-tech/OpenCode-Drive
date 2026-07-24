@@ -12,20 +12,19 @@ import {
   ScrollView,
   StyleSheet,
   Alert,
-  Switch,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, Check, Shield, Globe, Key, Lock, Server, Palette, Trash2, Plus } from 'lucide-react-native';
+import { Check, Trash2, Plus } from 'lucide-react-native';
 import { getThemeColors } from '../../theme';
 import { storage } from '../../storage/mmkv';
 import { apiClient } from '../../network/api-client';
 import type { AuthType, ServerProfile } from '../../network/types';
 
-const authTypes: { type: AuthType; label: string; description: string; icon: typeof Shield }[] = [
-  { type: 'none', label: 'None', description: 'No authentication', icon: Globe },
-  { type: 'basic', label: 'Basic Auth', description: 'Username & password', icon: Lock },
-  { type: 'bearer', label: 'Bearer Token', description: 'Authorization header', icon: Key },
-  { type: 'apikey', label: 'API Key', description: 'X-API-Key header', icon: Shield },
+const authTypes: { type: AuthType; label: string; description: string }[] = [
+  { type: 'none', label: 'None', description: 'No authentication' },
+  { type: 'basic', label: 'Basic Auth', description: 'Username & password' },
+  { type: 'bearer', label: 'Bearer Token', description: 'Authorization header' },
+  { type: 'apikey', label: 'API Key', description: 'X-API-Key header' },
 ];
 
 export default function SettingsScreen() {
@@ -95,7 +94,7 @@ export default function SettingsScreen() {
       apiClient.setBaseURL(profile.url);
       const health = await apiClient.getHealth();
       Alert.alert('Success', `Connected! Version: ${health.version}`);
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to connect');
     }
   };
@@ -195,7 +194,6 @@ export default function SettingsScreen() {
             <Text style={[styles.label, { color: theme.textMuted }]}>Authentication</Text>
             <View style={styles.authGrid}>
               {authTypes.map((a) => {
-                const Icon = a.icon;
                 const selected = editProfile.authType === a.type;
                 return (
                   <TouchableOpacity
@@ -209,7 +207,6 @@ export default function SettingsScreen() {
                     ]}
                     onPress={() => setEditProfile({ ...editProfile, authType: a.type })}
                   >
-                    <Icon size={16} color={selected ? theme.primary : theme.textMuted} />
                     <Text style={[styles.authLabel, { color: selected ? theme.text : theme.textMuted }]}>
                       {a.label}
                     </Text>

@@ -92,4 +92,4 @@ global.fetch = jest.fn(() =>
       }),
     },
   })
-) as jest.Mock;
+);

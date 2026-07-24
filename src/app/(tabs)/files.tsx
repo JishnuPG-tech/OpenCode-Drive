@@ -37,14 +37,6 @@ export default function FilesScreen() {
     }
   };
 
-  const handleBack = () => {
-    if (pathHistory.length > 1) {
-      const newPath = pathHistory[pathHistory.length - 2];
-      setPathHistory(pathHistory.slice(0, -1));
-      setCurrentPath(newPath);
-    }
-  };
-
   const handleRefresh = () => {
     refetch();
   };

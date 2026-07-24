@@ -1,25 +1,20 @@
-/**
- * Virtualized List Component
- * FlashList wrapper for optimal performance
- */
-
-import { useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, ViewToken } from 'react-native';
-import { FlashList, FlashListProps } from '@shopify/flash-list';
+import { useCallback } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { getThemeColors } from '../theme';
 import { storage } from '../storage/mmkv';
 
-interface VirtualizedListProps<T> extends Omit<FlashListProps<T>, 'estimatedItemSize'> {
+interface VirtualizedListProps<T> {
   data: T[];
-  renderItem: FlashListProps<T>['renderItem'];
-  estimatedItemSize?: number;
+  renderItem: (info: { item: T; index: number }) => React.ReactElement | null;
   emptyMessage?: string;
+  keyExtractor?: (item: T, index: number) => string;
+  showsVerticalScrollIndicator?: boolean;
 }
 
 export function VirtualizedList<T>({
   data,
   renderItem,
-  estimatedItemSize = 80,
   emptyMessage = 'No items',
   ...props
 }: VirtualizedListProps<T>) {
@@ -46,7 +41,6 @@ export function VirtualizedList<T>({
     <FlashList
       data={data}
       renderItem={renderItem}
-      estimatedItemSize={estimatedItemSize}
       keyExtractor={keyExtractor}
       ListEmptyComponent={ListEmptyComponent}
       showsVerticalScrollIndicator={false}

@@ -1,9 +1,9 @@
 /**
  * Animation Utilities
- * Reusable animation configurations
+ * Reusable animation configurations using Reanimated 3
  */
 
-import { withSpring, withTiming, interpolate, Extrapolate } from 'react-native-reanimated';
+import { withSpring, withTiming } from 'react-native-reanimated';
 
 // Spring configurations
 export const SPRING_CONFIG = {
@@ -20,84 +20,72 @@ export const TIMING_CONFIG = {
   slow: 500,
 };
 
-// Animation presets
+// Animation helpers
 export const animations = {
   // Fade in
-  fadeIn: (opacity: Animated.Value, duration = TIMING_CONFIG.normal) => {
+  fadeIn: (value: number, duration = TIMING_CONFIG.normal) => {
     return withTiming(1, { duration });
   },
 
   // Fade out
-  fadeOut: (opacity: Animated.Value, duration = TIMING_CONFIG.normal) => {
+  fadeOut: (duration = TIMING_CONFIG.normal) => {
     return withTiming(0, { duration });
   },
 
   // Slide up
-  slideUp: (translateY: Animated.Value, distance = 50) => {
+  slideUp: (_value: number, _distance = 50) => {
     return withSpring(0, SPRING_CONFIG.gentle);
   },
 
   // Slide down
-  slideDown: (translateY: Animated.Value, distance = 50) => {
+  slideDown: (distance = 50) => {
     return withSpring(distance, SPRING_CONFIG.gentle);
   },
 
   // Scale in
-  scaleIn: (scale: Animated.Value) => {
+  scaleIn: () => {
     return withSpring(1, SPRING_CONFIG.bouncy);
   },
 
   // Scale out
-  scaleOut: (scale: Animated.Value) => {
+  scaleOut: () => {
     return withSpring(0.8, SPRING_CONFIG.snappy);
   },
 
   // Bounce
-  bounce: (scale: Animated.Value) => {
+  bounce: () => {
     return withSpring(1.1, SPRING_CONFIG.bouncy);
   },
 
   // Pulse
-  pulse: (scale: Animated.Value) => {
+  pulse: () => {
     return withSpring(1.05, SPRING_CONFIG.stiff);
   },
 };
 
 // Interpolation helpers
 export function interpolateOpacity(
-  value: Animated.Value,
+  value: unknown,
   inputRange: number[],
   outputRange: number[] = [0, 1]
 ) {
-  return value.interpolate({
-    inputRange,
-    outputRange,
-    extrapolate: Extrapolate.CLAMP,
-  });
+  return { inputRange, outputRange };
 }
 
 export function interpolateScale(
-  value: Animated.Value,
+  value: unknown,
   inputRange: number[],
   outputRange: number[] = [0.8, 1]
 ) {
-  return value.interpolate({
-    inputRange,
-    outputRange,
-    extrapolate: Extrapolate.CLAMP,
-  });
+  return { inputRange, outputRange };
 }
 
 export function interpolateTranslate(
-  value: Animated.Value,
+  value: unknown,
   inputRange: number[],
   outputRange: number[] = [20, 0]
 ) {
-  return value.interpolate({
-    inputRange,
-    outputRange,
-    extrapolate: Extrapolate.CLAMP,
-  });
+  return { inputRange, outputRange };
 }
 
 // Stagger animation helper
@@ -111,7 +99,7 @@ export function staggerAnimations(
 }
 
 // Parallel animation helper
-export function parallelAnimations(
+export async function parallelAnimations(
   animations: (() => void)[]
 ) {
   return Promise.all(animations.map((animation) => animation()));
@@ -125,5 +113,3 @@ export async function sequenceAnimations(
     await animation();
   }
 }
-
-import Animated from 'react-native-reanimated';

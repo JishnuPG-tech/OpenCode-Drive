@@ -4,7 +4,7 @@
  */
 
 import { MMKV } from 'react-native-mmkv';
-import type { ServerProfile, AuthType } from '../network/types';
+import type { ServerProfile } from '../network/types';
 
 const STORAGE_KEYS = {
   // Server Profiles

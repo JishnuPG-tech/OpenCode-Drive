@@ -57,8 +57,8 @@ export default function ChatScreen() {
 
     try {
       await sendMessage.mutateAsync({ sessionId: id, content: message });
-    } catch (error) {
-      console.error('Failed to send message:', error);
+    } catch {
+      console.error('Failed to send message');
     }
   };
 
@@ -66,8 +66,8 @@ export default function ChatScreen() {
     if (!id) return;
     try {
       await abortSession.mutateAsync(id);
-    } catch (error) {
-      console.error('Failed to abort:', error);
+    } catch {
+      console.error('Failed to abort');
     }
   };
 

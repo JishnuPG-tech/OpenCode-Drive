@@ -6,8 +6,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../network/api-client';
 import { useAppStore } from '../store';
-import { storage } from '../storage/mmkv';
-import type { Session, Message, Model } from '../network/types';
+import type { Message } from '../network/types';
 
 // ── Query Keys ──
 
@@ -126,11 +125,12 @@ export function useSendMessage() {
       apiClient.sendMessage(sessionId, content),
     onSuccess: (response, { sessionId }) => {
       // Add user message
+      const userText = response.parts.find(p => p.type === 'text')?.text || '';
       const userMessage: Message = {
         id: response.info.id,
         sessionID: sessionId,
         role: 'user',
-        parts: [{ type: 'text', text: response.info.parentID ? '' : response.parts[0]?.text || '' }],
+        parts: [{ type: 'text', text: response.info.parentID ? '' : userText }],
         createdAt: new Date().toISOString(),
       };
       addMessage(sessionId, userMessage);
